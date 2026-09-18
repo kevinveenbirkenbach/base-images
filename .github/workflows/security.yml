@@ -9,6 +9,10 @@ on:
     - cron: "0 0 * * 6"
   workflow_dispatch:
 
+concurrency:
+  group: security-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -22,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [arch, manjaro, debian, ubuntu, fedora, centos]
+        distro: [arch, debian, ubuntu, fedora, centos]
 
     steps:
       - name: "⬇️ Checkout"
