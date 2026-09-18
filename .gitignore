@@ -1,5 +1,3 @@
-.venv/
-dist/
+.env
+.mcp.json
 build/
-__pycache__/
-*.pyc
