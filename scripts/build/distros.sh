@@ -14,7 +14,6 @@ set -euo pipefail
 
 : "${BASE_IMAGE_ARCH_AMD64:=archlinux:latest}"
 : "${BASE_IMAGE_ARCH_ARM64:=menci/archlinuxarm:base}"
-: "${BASE_IMAGE_MANJARO:=manjarolinux/base:latest}"
 : "${BASE_IMAGE_DEBIAN:=debian:stable-slim}"
 : "${BASE_IMAGE_UBUNTU:=ubuntu:latest}"
 : "${BASE_IMAGE_FEDORA:=fedora:latest}"
@@ -25,7 +24,6 @@ resolve_base_image() {
 	case "${distro}:${arch}" in
 	arch:amd64) echo "${BASE_IMAGE_ARCH_AMD64}" ;;
 	arch:arm64) echo "${BASE_IMAGE_ARCH_ARM64}" ;;
-	manjaro:*) echo "${BASE_IMAGE_MANJARO}" ;;
 	debian:*) echo "${BASE_IMAGE_DEBIAN}" ;;
 	ubuntu:*) echo "${BASE_IMAGE_UBUNTU}" ;;
 	fedora:*) echo "${BASE_IMAGE_FEDORA}" ;;
@@ -44,7 +42,7 @@ resolve_base_image() {
 is_rolling() {
 	local distro="$1"
 	case "${distro}" in
-	arch | manjaro) return 0 ;;
+	arch) return 0 ;;
 	debian | ubuntu | fedora | centos) return 1 ;;
 	*)
 		echo "ERROR: unknown distro '${distro}'" >&2
@@ -64,7 +62,7 @@ major_of() {
 resolve_platforms() {
 	local distro="$1"
 	case "${distro}" in
-	arch | manjaro | debian | ubuntu | fedora | centos) echo "linux/amd64,linux/arm64" ;;
+	arch | debian | ubuntu | fedora | centos) echo "linux/amd64,linux/arm64" ;;
 	*)
 		echo "ERROR: unknown distro '${distro}'" >&2
 		exit 1

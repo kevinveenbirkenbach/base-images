@@ -7,7 +7,7 @@
 # Env:
 #   OWNER      registry namespace (required)
 #   REGISTRY   default: ghcr.io
-#   DISTROS    default: arch manjaro debian ubuntu fedora centos
+#   DISTROS    default: arch debian ubuntu fedora centos
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${OWNER:?OWNER must be set}"
 
 REGISTRY="${REGISTRY:-ghcr.io}"
-DISTROS="${DISTROS:-arch manjaro debian ubuntu fedora centos}"
+DISTROS="${DISTROS:-arch debian ubuntu fedora centos}"
 
 failed=()
 for distro in ${DISTROS}; do

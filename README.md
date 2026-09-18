@@ -17,9 +17,9 @@ own `/etc/os-release` (`13` for Debian, `24` for Ubuntu, `41` for Fedora, `9`
 for CentOS), not from a list maintained here that could drift from what the
 image actually is.
 
-A rolling distribution publishes `latest` alone: Arch and Manjaro carry a
-snapshot stamp where the others carry a release, and a tag built from it would
-change on every rebuild and never come back, so nobody could pin it.
+A rolling distribution publishes `latest` alone: Arch carries a snapshot stamp
+where the others carry a release, and a tag built from it would change on every
+rebuild and never come back, so nobody could pin it.
 
 ## What is in them
 
@@ -38,7 +38,6 @@ project with its own maintainers and package repositories.
 | Distribution | amd64 upstream | arm64 upstream |
 | --- | --- | --- |
 | arch | `archlinux:latest` | `menci/archlinuxarm:base` |
-| manjaro | `manjarolinux/base:latest` | `manjarolinux/base:latest` |
 | debian | `debian:stable-slim` | `debian:stable-slim` |
 | ubuntu | `ubuntu:latest` | `ubuntu:latest` |
 | fedora | `fedora:latest` | `fedora:latest` |
