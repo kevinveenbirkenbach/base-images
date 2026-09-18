@@ -62,4 +62,4 @@ jobs:
           persist-credentials: false
 
       - name: "📝 markdownlint-cli2"
-        uses: DavidAnson/markdownlint-cli2-action@v19
+        uses: DavidAnson/markdownlint-cli2-action@v24
