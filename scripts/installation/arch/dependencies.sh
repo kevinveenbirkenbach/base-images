@@ -5,6 +5,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "[arch/dependencies] Installing Arch build dependencies..."
 
+if pacman --sync --help 2>&1 | grep -q -- '--disable-sandbox' &&
+  ! grep -q '^DisableSandbox' /etc/pacman.conf; then
+  echo "[arch/dependencies] Disabling the pacman download sandbox for this build."
+  sed -i '/^\[options\]/a DisableSandbox' /etc/pacman.conf
+fi
+
 pacman -Syu --noconfirm
 
 if ! pacman-key --list-sigs &>/dev/null; then
