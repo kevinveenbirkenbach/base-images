@@ -1,0 +1,42 @@
+name: "🖼️ CI"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🖼️ CI"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Midnight Zulu, every day: the images exist to carry their distribution's
+  # security updates, and nothing in this repository changes when an upstream
+  # publishes one. Without a scheduled rebuild the tags age with the commit
+  # rather than with the distribution.
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: "🧹"
+    uses: ./.github/workflows/call-lint.yml
+
+  test:
+    name: "🧪"
+    uses: ./.github/workflows/call-test.yml
+
+  # Nothing reaches the registry before both gates are green: a published tag
+  # is what every consumer pulls, and an image that failed its contract would
+  # break them at build time rather than here.
+  publish:
+    name: "🚀"
+    needs: [lint, test]
+    if: ${{ github.event_name != 'pull_request' }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-publish.yml

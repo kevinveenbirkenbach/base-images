@@ -1,0 +1,81 @@
+name: "🔐 Security"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🔐 Security"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 6"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  images:
+    name: "🔐 Scan ${{ matrix.distro }}"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [arch, manjaro, debian, ubuntu, fedora, centos]
+
+    steps:
+      - name: "⬇️ Checkout"
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: "🔧 Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v3
+
+      - name: "💿 Build ${{ matrix.distro }} for this runner"
+        shell: bash
+        run: bash scripts/build/image.sh --distro ${{ matrix.distro }} --load
+
+      - name: "🔐 Scan the image for known vulnerabilities"
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "base-${{ matrix.distro }}:local"
+          format: sarif
+          output: "trivy-${{ matrix.distro }}.sarif"
+          ignore-unfixed: true
+          severity: "CRITICAL,HIGH"
+
+      - name: "⬆️ Upload the findings"
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-${{ matrix.distro }}.sarif"
+          category: "trivy-${{ matrix.distro }}"
+
+  scorecard:
+    name: "🛡️ Supply chain"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+
+    steps:
+      - name: "⬇️ Checkout"
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: "🛡️ Run OSSF scorecard"
+        uses: ossf/scorecard-action@v2.4.0
+        with:
+          results_file: scorecard.sarif
+          results_format: sarif
+          publish_results: false
+
+      - name: "⬆️ Upload the findings"
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: scorecard.sarif
+          category: scorecard

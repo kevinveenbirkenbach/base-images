@@ -1,0 +1,16 @@
+{
+  // markdownlint-cli2 config — see https://github.com/DavidAnson/markdownlint-cli2
+  // The repository is new, so the rule set stays at the default and only the
+  // line-length rule is off: the tables here carry image references that
+  // cannot be wrapped without making them unreadable.
+  "config": {
+    "default": true,
+    "MD013": false
+  },
+  "globs": [
+    "**/*.md"
+  ],
+  "ignores": [
+    ".git/**"
+  ]
+}
