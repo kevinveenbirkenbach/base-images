@@ -18,7 +18,10 @@ IMAGE="${1:?usage: contract.sh <image-ref> [platform]}"
 PLATFORM="${2:-}"
 
 run_args=(--rm)
-[[ -n "${PLATFORM}" ]] && run_args+=(--platform "${PLATFORM}")
+if [[ -n "${PLATFORM}" ]]; then
+	run_args+=(--platform "${PLATFORM}")
+	bash "$(cd "$(dirname "${BASH_SOURCE[0]}")/../build" && pwd)/binfmt.sh" "${PLATFORM}"
+fi
 
 echo "[contract] ${IMAGE}${PLATFORM:+ (${PLATFORM})}"
 

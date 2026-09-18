@@ -82,6 +82,8 @@ build_args=(
 ((NO_CACHE == 1)) && build_args+=(--no-cache)
 PLATFORMS="$(resolve_platforms "${DISTRO}")"
 
+bash "${SCRIPT_DIR}/binfmt.sh" "${ONE_PLATFORM:-${PLATFORMS}}"
+
 # The default `docker` driver cannot build a manifest list; only a
 # docker-container builder can. CI installs one through setup-buildx-action,
 # and a workstation gets the same one here rather than an error telling the
