@@ -7,10 +7,10 @@
 ARG BASE_IMAGE_AMD64
 ARG BASE_IMAGE_ARM64
 
-# hadolint ignore=DL3006,InvalidDefaultArgInFrom
+# hadolint ignore=DL3006
 FROM ${BASE_IMAGE_AMD64} AS upstream-amd64
 
-# hadolint ignore=DL3006,InvalidDefaultArgInFrom
+# hadolint ignore=DL3006
 FROM ${BASE_IMAGE_ARM64} AS upstream-arm64
 
 # hadolint ignore=DL3006
