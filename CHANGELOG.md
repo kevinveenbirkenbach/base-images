@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.2] - 2026-09-20
+
+* The images publish again: hadolint no longer fails the *Dockerfile* lint job.
+* *InvalidDefaultArgInFrom* is a BuildKit check, not a hadolint rule.
+* hadolint 2.12.0 discards a whole ignore directive that names an unknown rule.
+* Both *FROM* lines were therefore unguarded and reported *DL3006*.
+* The BuildKit check stays covered by the *check=skip* directive on line 2.
+* Publishing waits on lint, so this one job kept the registry empty.
+
 ## [1.0.1] - 2026-09-18
 
 * Arch builds for arm64 again: *DisableSandbox* in */etc/pacman.conf*.
