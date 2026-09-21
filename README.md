@@ -41,7 +41,7 @@ project with its own maintainers and package repositories.
 | debian | `debian:stable-slim` | `debian:stable-slim` |
 | ubuntu | `ubuntu:latest` | `ubuntu:latest` |
 | fedora | `fedora:latest` | `fedora:latest` |
-| centos | `quay.io/centos/centos:stream9` | `quay.io/centos/centos:stream9` |
+| centos | `quay.io/centos/centos:latest` | `quay.io/centos/centos:latest` |
 
 The Dockerfile selects the upstream by `TARGETARCH`, so one build command
 produces both legs. The set is declared in
