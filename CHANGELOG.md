@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.0] - 2026-09-22
+
+* CentOS builds on *quay.io/centos/centos:latest* instead of the pinned *stream9*, which is CentOS Stream 10 today.
+* Stream 9 ships Python 3.9, and consumers that require 3.10 or newer failed on it.
+* Stream 10 ships Python 3.12 and serves amd64 and arm64 from the same upstream.
+* The major tag comes from */etc/os-release*, so *base-centos:10* is new.
+* *base-centos:9* is no longer rebuilt, and *latest* moves to EL10 with this release.
+* On amd64, EL10 needs an x86-64-v3 CPU (AVX2).
+* The next Stream release reaches *latest* without a change here, the same way fedora and ubuntu do.
+
 ## [1.0.2] - 2026-09-20
 
 * The images publish again: hadolint no longer fails the *Dockerfile* lint job.
