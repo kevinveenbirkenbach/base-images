@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1] - 2026-09-22
+
+* Security scans run again; the scanner pins named unresolvable versions.
+* Every action is pinned to a commit SHA that Dependabot keeps current.
+* *SECURITY.md* names private channels for reporting a vulnerability.
+* The images themselves are unchanged; upstream bases still track tags.
+
 ## [1.1.0] - 2026-09-22
 
 * CentOS builds on *quay.io/centos/centos:latest* instead of the pinned *stream9*, which is CentOS Stream 10 today.
