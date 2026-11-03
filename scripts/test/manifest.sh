@@ -54,7 +54,7 @@ if is_rolling "${DISTRO}"; then
 fi
 
 version="$(
-	docker run --rm "${REPO}:latest" bash -lc "$(full_version_cmd "${DISTRO}")"
+	docker run --rm --pull always "${REPO}:latest" bash -lc "$(full_version_cmd "${DISTRO}")"
 )"
 latest_digest="$(digest_of "${REPO}:latest")"
 

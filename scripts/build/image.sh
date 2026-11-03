@@ -137,7 +137,7 @@ publish)
 
 		package_set="$(package_set_cmd "${DISTRO}")"
 		built_set="$(docker run --rm "base-${DISTRO}:version-probe" bash -lc "${package_set}" | sha256sum)"
-		published_set="$(docker run --rm "${tag_base}:latest" bash -lc "${package_set}" 2>/dev/null | sha256sum || true)"
+		published_set="$(docker run --rm --pull always "${tag_base}:latest" bash -lc "${package_set}" 2>/dev/null | sha256sum || true)"
 		if [[ "${built_set}" == "${published_set}" ]] &&
 			docker buildx imagetools inspect "${tag_base}:${version}" >/dev/null 2>&1; then
 			echo "[build] ${DISTRO} unchanged since the published ${version}, nothing to push."
