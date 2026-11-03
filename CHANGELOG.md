@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.0.0] - 2026-11-03
+
+Added:
+
+* Tags: every release prefix, such as *13* and *13.7*, follows each build
+* Tags: a build tag such as *13.7.1767225600* ends in the unix timestamp
+* Tags: pushed only when the installed package set changed
+* Bases: a daily check opens a pull request when a new upstream major exists
+
+Changed:
+
+* Bases: Debian 13, Ubuntu 26.04, Fedora 44 and CentOS Stream 10 are pinned
+* Tags: *latest* follows these majors instead of the upstream *latest*
+
+Upgrade notes:
+
+* Fedora: *base-fedora* moves from 45 back to 44 until OpenZFS ships fc45
+* Ubuntu, CentOS: the old *24* and *9* tags receive no new builds
+
 ## [1.1.2] - 2026-11-03
 
 Fixed:
