@@ -4,6 +4,7 @@ set -euo pipefail
 echo "[debian/dependencies] Installing Debian build dependencies..."
 
 apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y --no-install-recommends
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   build-essential \
   debhelper \
@@ -19,6 +20,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   python3-pip \
   xz-utils
 
+apt-get clean
 rm -rf /var/lib/apt/lists/*
 
 echo "[debian/dependencies] Done."

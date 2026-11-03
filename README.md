@@ -23,8 +23,9 @@ rebuild and never come back, so nobody could pin it.
 
 ## What is in them
 
-The distribution plus the build dependencies every consumer needs before it can
-install anything of its own: a compiler toolchain, `git`, `curl`,
+The distribution, upgraded to the newest package its repositories carry at build
+time, plus the build dependencies every consumer needs before it can install
+anything of its own: a compiler toolchain, `git`, `curl`,
 `ca-certificates`, `python3` with `venv` and `pip`, and the distribution's own
 packaging tools. Nothing else — a consumer installs what it needs on top.
 
