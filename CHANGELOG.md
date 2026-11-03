@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2] - 2026-11-03
+
+Fixed:
+
+* Debian, Ubuntu: images now build with *apt-get dist-upgrade*
+* Debian, Ubuntu: patched packages such as *tzdata* are no longer stale
+* CentOS, Fedora, Arch: unchanged; their builds already upgraded
+
 ## [1.1.1] - 2026-09-22
 
 * Security scans run again; the scanner pins named unresolvable versions.
