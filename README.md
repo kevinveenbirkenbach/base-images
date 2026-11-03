@@ -14,8 +14,8 @@ ghcr.io/kevinveenbirkenbach/base-<distro>:<release>.<unix-ts>      # one build, 
 ```
 
 `<release>` is the most complete version the built image carries: `13.2` for
-Debian (from `/etc/debian_version`), `24.04.3` for Ubuntu (from `VERSION`), `41`
-for Fedora and `9` for CentOS (from `VERSION_ID`). `<unix-ts>` is the build
+Debian (from `/etc/debian_version`), `26.04.1` for Ubuntu (from `VERSION`), `44`
+for Fedora and `10` for CentOS (from `VERSION_ID`). `<unix-ts>` is the build
 time, so `13.2.1767225600` is a full version an updater can order and pin.
 Every tag of one build points at the same image, so a security update reaches
 whoever pinned the major, the minor, or follows `latest`. The release comes out
@@ -48,10 +48,21 @@ project with its own maintainers and package repositories.
 | Distribution | amd64 upstream | arm64 upstream |
 | --- | --- | --- |
 | arch | `archlinux:latest` | `menci/archlinuxarm:base` |
-| debian | `debian:stable-slim` | `debian:stable-slim` |
-| ubuntu | `ubuntu:latest` | `ubuntu:latest` |
-| fedora | `fedora:latest` | `fedora:latest` |
-| centos | `quay.io/centos/centos:latest` | `quay.io/centos/centos:latest` |
+| debian | `debian:13-slim` | `debian:13-slim` |
+| ubuntu | `ubuntu:26.04` | `ubuntu:26.04` |
+| fedora | `fedora:44` | `fedora:44` |
+| centos | `quay.io/centos/centos:stream10` | `quay.io/centos/centos:stream10` |
+
+Every upstream except Arch is pinned to one major, so a new upstream major can
+no longer break the builds of a consumer unannounced. Minor and patch updates
+arrive through the daily rebuild. [new-major.sh](scripts/build/new-major.sh)
+checks the registries daily at 00:30 UTC through
+[cron-new-major.yml](.github/workflows/cron-new-major.yml) and opens one pull
+request per distribution whose next major exists upstream, raising the pin in
+[distros.sh](scripts/build/distros.sh). A human merges it. A pull request opened
+with the workflow token does not start CI by itself: close and reopen it, and
+merge only once the contract tests are green. Run `bash scripts/build/new-major.sh`
+to see the verdict without opening anything.
 
 The Dockerfile selects the upstream by `TARGETARCH`, so one build command
 produces both legs. The set is declared in

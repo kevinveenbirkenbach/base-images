@@ -14,10 +14,54 @@ set -euo pipefail
 
 : "${BASE_IMAGE_ARCH_AMD64:=archlinux:latest}"
 : "${BASE_IMAGE_ARCH_ARM64:=menci/archlinuxarm:base}"
-: "${BASE_IMAGE_DEBIAN:=debian:stable-slim}"
-: "${BASE_IMAGE_UBUNTU:=ubuntu:latest}"
-: "${BASE_IMAGE_FEDORA:=fedora:latest}"
-: "${BASE_IMAGE_CENTOS:=quay.io/centos/centos:latest}"
+# Pinned to one major so an upstream major cannot move under a consumer;
+# new-major.sh rewrites these four lines and reads the numbers back out of them.
+: "${BASE_IMAGE_DEBIAN:=debian:13-slim}"
+: "${BASE_IMAGE_UBUNTU:=ubuntu:26.04}"
+: "${BASE_IMAGE_FEDORA:=fedora:44}"
+: "${BASE_IMAGE_CENTOS:=quay.io/centos/centos:stream10}"
+
+pin_var_of() {
+	local distro="$1"
+	case "${distro}" in
+	debian) echo BASE_IMAGE_DEBIAN ;;
+	ubuntu) echo BASE_IMAGE_UBUNTU ;;
+	fedora) echo BASE_IMAGE_FEDORA ;;
+	centos) echo BASE_IMAGE_CENTOS ;;
+	*)
+		echo "ERROR: unknown distro '${distro}'" >&2
+		exit 1
+		;;
+	esac
+}
+
+# The reference one major above the pin. Ubuntu counts in LTS steps because its
+# `latest` only moves on an LTS; its tag is the year plus `.04`.
+next_major_image() {
+	local distro="$1" pin
+	case "${distro}" in
+	debian)
+		pin="${BASE_IMAGE_DEBIAN#debian:}"
+		echo "debian:$((${pin%%-*} + 1))-slim"
+		;;
+	ubuntu)
+		pin="${BASE_IMAGE_UBUNTU#ubuntu:}"
+		echo "ubuntu:$((10#${pin%%.*} + 2)).04"
+		;;
+	fedora)
+		pin="${BASE_IMAGE_FEDORA#fedora:}"
+		echo "fedora:$((pin + 1))"
+		;;
+	centos)
+		pin="${BASE_IMAGE_CENTOS##*:stream}"
+		echo "quay.io/centos/centos:stream$((pin + 1))"
+		;;
+	*)
+		echo "ERROR: unknown distro '${distro}'" >&2
+		exit 1
+		;;
+	esac
+}
 
 resolve_base_image() {
 	local distro="$1" arch="$2"

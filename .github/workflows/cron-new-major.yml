@@ -1,0 +1,36 @@
+name: "🔎 New major"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🔎 New major"
+
+on:
+  schedule:
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: new-major-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  detect:
+    name: "🔎"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "⬇️ Checkout"
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+        with:
+          ref: main
+
+      - name: "🔎 Open a pull request for every new upstream major"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: bash scripts/build/new-major.sh --open-pr
