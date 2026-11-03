@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.1] - 2026-11-03
+
+Changed:
+
+* CI: GitHub Actions bumped to their current releases
+
+Fixed:
+
+* Publish: the published *latest* is read from the registry, not the cache
+
 ## [2.0.0] - 2026-11-03
 
 Added:
