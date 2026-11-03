@@ -5,8 +5,8 @@
 #
 #   * `latest` carrying fewer platforms than the distribution declares, which
 #     nobody notices until a consumer on the missing platform pulls it;
-#   * `latest` and the major tag drifting apart, so a consumer that pinned the
-#     major quietly stops receiving what `latest` gets.
+#   * `latest` and a release-prefix tag (13, 13.2) drifting apart, so a consumer
+#     that pinned one quietly stops receiving what `latest` gets.
 #
 # Usage:
 #   manifest.sh <distro> <repository-ref-without-tag>
@@ -53,15 +53,17 @@ if is_rolling "${DISTRO}"; then
 	exit 0
 fi
 
-version_id="$(
-	docker run --rm "${REPO}:latest" bash -lc '. /etc/os-release; echo "${VERSION_ID:-}"'
+version="$(
+	docker run --rm "${REPO}:latest" bash -lc "$(full_version_cmd "${DISTRO}")"
 )"
-major="$(major_of "${version_id}")"
+latest_digest="$(digest_of "${REPO}:latest")"
 
-if [[ "$(digest_of "${REPO}:latest")" != "$(digest_of "${REPO}:${major}")" ]]; then
-	echo "[manifest] ❌ ${DISTRO}: latest and :${major} point at different images." >&2
-	echo "[manifest]    Whoever pinned the major stopped receiving what latest gets." >&2
-	exit 1
-fi
+while read -r prefix; do
+	if [[ "${latest_digest}" != "$(digest_of "${REPO}:${prefix}")" ]]; then
+		echo "[manifest] ❌ ${DISTRO}: latest and :${prefix} point at different images." >&2
+		echo "[manifest]    Whoever pinned ${prefix} stopped receiving what latest gets." >&2
+		exit 1
+	fi
+done < <(version_prefixes "${version}")
 
-echo "[manifest] ✅ ${DISTRO} (latest == :${major}, ${expected})"
+echo "[manifest] ✅ ${DISTRO} (latest == every prefix of ${version}, ${expected})"

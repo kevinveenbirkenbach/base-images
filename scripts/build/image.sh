@@ -11,7 +11,9 @@
 #   --platform <p>    with --load: which platform to build (default: the host's)
 #   LOAD_TAG          env; overrides the tag --load writes (default base-<distro>:local)
 #   --publish         push every declared platform, tagged `latest` and, unless
-#                     the distribution rolls, the major release inside the image
+#                     the distribution rolls, every prefix of the release inside
+#                     the image plus `<release>.<unix-timestamp>`; skipped when
+#                     the package set equals the published one
 #   --registry <r>    registry for --publish (default: ghcr.io)
 #   --owner <o>       registry namespace for --publish
 #   --no-cache        build without the layer cache
@@ -95,11 +97,8 @@ if ! docker buildx inspect "${BUILDER}" >/dev/null 2>&1; then
 fi
 build_args+=(--builder "${BUILDER}")
 
-# A distribution that declares a release but renders none would publish only
-# `latest`, and every consumer pinning the major would silently follow the
-# newest release instead.
 exit_no_version() {
-	echo "[build] ❌ $1 declares a release but /etc/os-release carries no VERSION_ID." >&2
+	echo "[build] ❌ $1 declares a release but its image reports '$2', not a dotted number." >&2
 	echo "[build]    Either the upstream base changed, or $1 rolls and belongs in is_rolling()." >&2
 	exit 1
 }
@@ -129,16 +128,28 @@ publish)
 			--load \
 			"${REPO_ROOT}"
 
-		version_id="$(
+		version="$(
 			docker run --rm "base-${DISTRO}:version-probe" \
-				bash -lc '. /etc/os-release; echo "${VERSION_ID:-}"'
+				bash -lc "$(full_version_cmd "${DISTRO}")"
 		)"
-		[[ -n "${version_id}" ]] ||
-			exit_no_version "${DISTRO}"
+		[[ "${version}" =~ ^[0-9]+(\.[0-9]+)*$ ]] ||
+			exit_no_version "${DISTRO}" "${version}"
 
-		major="$(major_of "${version_id}")"
-		tags+=(-t "${tag_base}:${major}")
-		echo "[build] release   = ${version_id} -> :${major}"
+		package_set="$(package_set_cmd "${DISTRO}")"
+		built_set="$(docker run --rm "base-${DISTRO}:version-probe" bash -lc "${package_set}" | sha256sum)"
+		published_set="$(docker run --rm "${tag_base}:latest" bash -lc "${package_set}" 2>/dev/null | sha256sum || true)"
+		if [[ "${built_set}" == "${published_set}" ]] &&
+			docker buildx imagetools inspect "${tag_base}:${version}" >/dev/null 2>&1; then
+			echo "[build] ${DISTRO} unchanged since the published ${version}, nothing to push."
+			exit 0
+		fi
+
+		while read -r prefix; do
+			tags+=(-t "${tag_base}:${prefix}")
+		done < <(version_prefixes "${version}")
+		stamp="$(date -u +%s)"
+		tags+=(-t "${tag_base}:${version}.${stamp}")
+		echo "[build] release   = ${version} -> :${version}.${stamp} and its prefixes"
 	else
 		echo "[build] release   = rolling, latest only"
 	fi

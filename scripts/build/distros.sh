@@ -51,12 +51,48 @@ is_rolling() {
 	esac
 }
 
-# The major of a VERSION_ID, which is what a consumer pins: Debian 13, Ubuntu
-# 24, Fedora 41, CentOS 9. The minor moves under it with every rebuild, and a
-# tag that carries it would pin a build rather than a release.
-major_of() {
-	local version_id="$1"
-	echo "${version_id%%.*}"
+# Shell snippet that prints the most complete release a distribution's image
+# carries, run inside the image. Debian keeps its point release only in
+# /etc/debian_version (VERSION_ID is the bare major) and Ubuntu its patch only
+# in the leading number of VERSION; Fedora and CentOS carry the major alone.
+full_version_cmd() {
+	local distro="$1"
+	# shellcheck disable=SC2016
+	case "${distro}" in
+	debian) echo 'cat /etc/debian_version' ;;
+	ubuntu) echo '. /etc/os-release; echo "${VERSION%% *}"' ;;
+	fedora | centos) echo '. /etc/os-release; echo "${VERSION_ID:-}"' ;;
+	*)
+		echo "ERROR: unknown distro '${distro}'" >&2
+		exit 1
+		;;
+	esac
+}
+
+# Shell snippet that prints the installed package set, run inside the image.
+# Two builds with the same output carry the same distribution state, which a
+# manifest digest cannot tell: layer timestamps change it on every rebuild.
+package_set_cmd() {
+	local distro="$1"
+	case "${distro}" in
+	debian | ubuntu) echo 'dpkg-query -W' ;;
+	fedora | centos) echo 'rpm -qa | sort' ;;
+	*)
+		echo "ERROR: unknown distro '${distro}'" >&2
+		exit 1
+		;;
+	esac
+}
+
+version_prefixes() {
+	local -a parts
+	IFS=. read -ra parts <<<"$1"
+	local acc="${parts[0]}" i
+	echo "${acc}"
+	for ((i = 1; i < ${#parts[@]}; i++)); do
+		acc+=".${parts[i]}"
+		echo "${acc}"
+	done
 }
 
 resolve_platforms() {

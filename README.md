@@ -7,15 +7,24 @@ One image per distribution, one variant, every platform the upstream base
 offers, published to GHCR:
 
 ```text
-ghcr.io/kevinveenbirkenbach/base-<distro>:latest      # always the newest build
-ghcr.io/kevinveenbirkenbach/base-<distro>:<major>     # pinned to one release
+ghcr.io/kevinveenbirkenbach/base-<distro>:latest                   # always the newest build
+ghcr.io/kevinveenbirkenbach/base-<distro>:<major>                  # moves with every build of the release line
+ghcr.io/kevinveenbirkenbach/base-<distro>:<major>.<minor>[.<patch>]  # same, one level narrower
+ghcr.io/kevinveenbirkenbach/base-<distro>:<release>.<unix-ts>      # one build, never moves
 ```
 
-Both move on every push, so a security update reaches whoever pinned the major
-as well as whoever follows `latest`. The major comes out of the built image's
-own `/etc/os-release` (`13` for Debian, `24` for Ubuntu, `41` for Fedora, `9`
-for CentOS), not from a list maintained here that could drift from what the
-image actually is.
+`<release>` is the most complete version the built image carries: `13.2` for
+Debian (from `/etc/debian_version`), `24.04.3` for Ubuntu (from `VERSION`), `41`
+for Fedora and `9` for CentOS (from `VERSION_ID`). `<unix-ts>` is the build
+time, so `13.2.1767225600` is a full version an updater can order and pin.
+Every tag of one build points at the same image, so a security update reaches
+whoever pinned the major, the minor, or follows `latest`. The release comes out
+of the built image, not from a list maintained here that could drift from what
+the image actually is.
+
+A build whose installed packages equal those of the published `latest`, with
+its release tag already out, pushes nothing: a new timestamp tag would make
+every pin bump for no change.
 
 A rolling distribution publishes `latest` alone: Arch carries a snapshot stamp
 where the others carry a release, and a tag built from it would change on every
@@ -94,9 +103,9 @@ are green**: a published tag is what every consumer pulls, and an image that
 failed its contract would break them at build time rather than here.
 
 A pull request stops after lint and test. A push to `main` publishes `latest`
-and the major, then asserts through
-[manifest.sh](scripts/test/manifest.sh) that both carry every declared platform
-and point at the same image.
+and the release tags, then asserts through
+[manifest.sh](scripts/test/manifest.sh) that `latest` carries every declared
+platform and every release prefix points at the same image.
 
 The same chain runs **daily at 00:00 UTC**. Nothing in this repository changes
 when a distribution publishes a security update, so without a scheduled rebuild
