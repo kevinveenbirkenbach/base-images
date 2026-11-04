@@ -18,7 +18,7 @@ set -euo pipefail
 # new-major.sh rewrites these four lines and reads the numbers back out of them.
 : "${BASE_IMAGE_DEBIAN:=debian:13-slim}"
 : "${BASE_IMAGE_UBUNTU:=ubuntu:26.04}"
-: "${BASE_IMAGE_FEDORA:=fedora:44}"
+: "${BASE_IMAGE_FEDORA:=fedora:45}"
 : "${BASE_IMAGE_CENTOS:=quay.io/centos/centos:stream10}"
 
 pin_var_of() {
